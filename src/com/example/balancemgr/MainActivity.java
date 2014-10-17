@@ -1,5 +1,6 @@
 package com.example.balancemgr;
 
+import java.util.Date;
 import java.util.Locale;
 
 import android.app.Activity;
@@ -7,9 +8,14 @@ import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
+import android.database.Cursor;
 import android.support.v13.app.FragmentPagerAdapter;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.CallLog;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,9 +37,46 @@ public class MainActivity extends Activity {
      */
     SectionsPagerAdapter mSectionsPagerAdapter;
 
-    public void sayHello(View view){
-    	TextView txtHello = (TextView) findViewById(R.id.txtHelloWorld);
-    	txtHello.setText("Hello Rakesh!");
+    public void getCallLogs(View view){
+    	Context context = getApplicationContext();
+    	Log.w("rakesh", getCallDetails(context));
+    }
+    
+    private static String getCallDetails(Context context) {
+        StringBuffer stringBuffer = new StringBuffer();
+        Cursor cursor = context.getContentResolver().query(CallLog.Calls.CONTENT_URI,
+                null, null, null, CallLog.Calls.DATE + " DESC");
+        int number = cursor.getColumnIndex(CallLog.Calls.NUMBER);
+        int type = cursor.getColumnIndex(CallLog.Calls.TYPE);
+        int date = cursor.getColumnIndex(CallLog.Calls.DATE);
+        int duration = cursor.getColumnIndex(CallLog.Calls.DURATION);       
+        while (cursor.moveToNext()) {
+            String phNumber = cursor.getString(number);
+            String callType = cursor.getString(type);
+            String callDate = cursor.getString(date);
+            Date callDayTime = new Date(Long.valueOf(callDate));
+            String callDuration = cursor.getString(duration);
+            String dir = null;
+            int dircode = Integer.parseInt(callType);
+            switch (dircode) {
+            case CallLog.Calls.OUTGOING_TYPE:
+                dir = "OUTGOING";
+                break;
+            case CallLog.Calls.INCOMING_TYPE:
+                dir = "INCOMING";
+                break;
+
+            case CallLog.Calls.MISSED_TYPE:
+                dir = "MISSED";
+                break;
+            }
+            stringBuffer.append("\nPhone Number:--- " + phNumber + " \nCall Type:--- "
+                    + dir + " \nCall Date:--- " + callDayTime
+                    + " \nCall duration in sec :--- " + callDuration);
+            stringBuffer.append("\n----------------------------------");
+        }
+        cursor.close();
+        return stringBuffer.toString();
     }
     
     /**

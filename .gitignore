@@ -1,0 +1,8 @@
+bin/*
+bin/balanceMgr.apk
+bin/classes.dex
+bin/classes/com/example/balancemgr/MainActivity$PlaceholderFragment.class
+bin/classes/com/example/balancemgr/MainActivity$SectionsPagerAdapter.class
+bin/classes/com/example/balancemgr/MainActivity.class
+bin/resources.ap_
+res/layout/fragment_main.xml
