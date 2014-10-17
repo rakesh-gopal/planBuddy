@@ -43,8 +43,12 @@ public class MainActivity extends Activity {
 
     public void getCallLogs(View view){
     	Context context = getApplicationContext();
-    	Log.w("rakesh", getCallDetails(context));
-    	getDatabase();
+    	//Log.w("rakesh", getCallDetails(context));
+    	
+    	addCallToDB("123456", "2014-10-15 12:00:00", 2000);
+    	
+    	printCallFromDB();
+    	
     }
     
     private static String getCallDetails(Context context) {
@@ -84,8 +88,41 @@ public class MainActivity extends Activity {
         return stringBuffer.toString();
     }
     
-    private void addCallToDB(){
+    private void addCallToDB(String phNumber, String time, int duration){
+    	String tblName = "out_calls";
+    	SQLiteDatabase db = getDatabase();
     	
+    	db.execSQL("INSERT INTO " + tblName +
+    			"(ph_num, call_time, call_dur)"
+    			+ "VALUES ('" + phNumber + "', '" + time + "', '" + duration + "');" );
+    	
+    	db.close();
+    }
+    
+    private void printCallFromDB(){
+    	String tblName = "out_calls";
+    	SQLiteDatabase myDB = getDatabase();
+    	String Data = "";
+    	
+		/*retrieve data from database */
+		Cursor c = myDB.rawQuery("SELECT * FROM " + tblName , null);
+
+		int Column1 = c.getColumnIndex("ph_num");
+		int Column2 = c.getColumnIndex("call_time");
+		int Column3 = c.getColumnIndex("call_dur");
+
+		// Check if our result was valid.
+		c.moveToFirst();
+		if (c != null) {
+			// Loop through all Results
+			do {
+				String ph = c.getString(Column1);
+				String time = c.getString(Column2);
+				int dur = c.getInt(Column3);
+				Data =Data +ph+"/"+ time + "/" + dur + "\n";
+			}while(c.moveToNext());
+		}
+		Log.w("rakesh", Data);
     }
     
     private SQLiteDatabase getDatabase(){
@@ -103,10 +140,12 @@ public class MainActivity extends Activity {
     				+ TableName
     				+ " (Field1 VARCHAR, Field2 INT(3));");
     		
+//    		myDB.execSQL("DROP TABLE IF EXISTS "
+//    				+ "out_calls");
     		/* Create a Table in the Database. */
     		myDB.execSQL("CREATE TABLE IF NOT EXISTS "
     				+ "out_calls"
-    				+ " (Field1 VARCHAR, Field2 INT(3));");
+    				+ " (ph_num VARCHAR, call_time DATETIME, call_dur INT(8));");
     		return myDB;
     		
 //    		/* Insert data to a Table */
