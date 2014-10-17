@@ -18,6 +18,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.CallLog;
 import android.support.v4.view.ViewPager;
 import android.telephony.TelephonyManager;
@@ -55,6 +56,18 @@ public class MainActivity extends Activity {
      */
     SectionsPagerAdapter mSectionsPagerAdapter;
     
+    static MainActivity thisActivity;
+    static Context thisContext;
+    
+    static MainActivity getThisActivity(){
+    	return thisActivity;
+    }
+    
+    static Context getContext(){
+    	return thisContext;
+    }
+    
+    
     private String tblName = "out_calls";
 
     public void getCallLogs(View view){
@@ -68,27 +81,21 @@ public class MainActivity extends Activity {
     	//printTopCallers();
     	//getMyPhoneNum();
     	
-    	new NetTask().execute((Void)null);
+    	Log.w("rakesh", "please wait...");
+    	showText("Please wait...");
+    	new NetTask().execute((Void)null);	
     }
     
-    private void getServiceProviders(){
-    	
-    	try {
-			JSONArray pro = readJsonArrayFromUrl("https://www.freecharge.in/rest/operators/Mobile");
-			
-			for(int i = 0; i < pro.length(); i++)
-				Log.w("rakesh", pro.getJSONObject(i).toString());
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    public void showText(final String str){
+    	this.runOnUiThread(new Runnable() {
+    	    public void run() {
+    			TextView txt = (TextView) findViewById(R.id.txtHelloWorld);
+    			txt.setText(str);
+    		}
+    	});
     }
-    
-    private String getMyPhoneNum(){
+
+    public String getMyPhoneNum(){
     	return "8951897798";
     }
     
@@ -114,6 +121,26 @@ public class MainActivity extends Activity {
 			}while(c.moveToNext());
 		}
 		Log.w("rakesh", Data);
+    }
+    
+    public String getTopCaller(){
+    	SQLiteDatabase myDB = getDatabase();
+    	
+		/*retrieve data from database */
+		Cursor c = myDB.rawQuery("SELECT ph_num, count(*) as num_count FROM " + tblName 
+				+ " GROUP BY ph_num ORDER BY num_count DESC LIMIT 1", null);
+
+		int Column1 = c.getColumnIndex("ph_num");
+
+		// Check if our result was valid.
+		c.moveToFirst();
+		{
+			// Loop through all Results
+			do {
+				String ph = c.getString(Column1);
+				return ph;
+			}while(c.moveToNext());
+		}
     }
     
     private static String readAll(Reader rd) throws IOException {
@@ -304,6 +331,8 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
 
+        thisActivity = this;
+        thisContext = getApplicationContext();
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
