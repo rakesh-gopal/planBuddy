@@ -1,5 +1,6 @@
 package com.example.balancemgr;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.example.balancemgr.*;
@@ -40,19 +41,50 @@ public class MainActivity extends Activity {
      * {@link android.support.v13.app.FragmentStatePagerAdapter}.
      */
     SectionsPagerAdapter mSectionsPagerAdapter;
+    
+    private String tblName = "out_calls";
 
     public void getCallLogs(View view){
     	Context context = getApplicationContext();
     	//Log.w("rakesh", getCallDetails(context));
     	
-    	addCallToDB("123456", "2014-10-15 12:00:00", 2000);
+    	//addCallToDB("123456", "2014-10-15 12:00:00", 2000);
+    	//getCallDetails(context);
+    	//printCallFromDB();
     	
-    	printCallFromDB();
+    	printTopCallers();
     	
     }
     
-    private static String getCallDetails(Context context) {
+    private void printTopCallers(){
+    	SQLiteDatabase myDB = getDatabase();
+    	String Data = "";
+    	
+		/*retrieve data from database */
+		Cursor c = myDB.rawQuery("SELECT ph_num, count(*) as num_count FROM " + tblName 
+				+ " GROUP BY ph_num ORDER BY num_count DESC LIMIT 5", null);
+
+		int Column1 = c.getColumnIndex("ph_num");
+		int Column2 = c.getColumnIndex("num_count");
+
+		// Check if our result was valid.
+		c.moveToFirst();
+		if (c != null) {
+			// Loop through all Results
+			do {
+				String ph = c.getString(Column1);
+				String count = c.getString(Column2);
+				Data =Data +ph+"/"+ count + "\n";
+			}while(c.moveToNext());
+		}
+		Log.w("rakesh", Data);
+    }
+    
+    private String getCallDetails(Context context) {
         StringBuffer stringBuffer = new StringBuffer();
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        
         Cursor cursor = context.getContentResolver().query(CallLog.Calls.CONTENT_URI,
                 null, null, null, CallLog.Calls.DATE + " DESC");
         int number = cursor.getColumnIndex(CallLog.Calls.NUMBER);
@@ -70,6 +102,7 @@ public class MainActivity extends Activity {
             switch (dircode) {
             case CallLog.Calls.OUTGOING_TYPE:
                 dir = "OUTGOING";
+                addCallToDB(phNumber, dateFormat.format(callDayTime), 10);
                 break;
             case CallLog.Calls.INCOMING_TYPE:
                 dir = "INCOMING";
