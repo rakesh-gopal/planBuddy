@@ -10,6 +10,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.net.Uri;
 import android.os.Bundle;
@@ -40,6 +41,7 @@ public class MainActivity extends Activity {
     public void getCallLogs(View view){
     	Context context = getApplicationContext();
     	Log.w("rakesh", getCallDetails(context));
+    	getDatabase();
     }
     
     private static String getCallDetails(Context context) {
@@ -79,6 +81,74 @@ public class MainActivity extends Activity {
         return stringBuffer.toString();
     }
     
+    private void addCallToDB(){
+    	
+    }
+    
+    private SQLiteDatabase getDatabase(){
+    	SQLiteDatabase myDB= null;
+    	String TableName = "out_calls";
+
+    	String Data="";
+
+    	/* Create a Database. */
+    	try {
+    		myDB = this.openOrCreateDatabase("balanceMgr", MODE_PRIVATE, null);
+
+    		/* Create a Table in the Database. */
+    		myDB.execSQL("CREATE TABLE IF NOT EXISTS "
+    				+ TableName
+    				+ " (Field1 VARCHAR, Field2 INT(3));");
+    		
+    		/* Create a Table in the Database. */
+    		myDB.execSQL("CREATE TABLE IF NOT EXISTS "
+    				+ "out_calls"
+    				+ " (Field1 VARCHAR, Field2 INT(3));");
+    		return myDB;
+    		
+//    		/* Insert data to a Table */
+//    		myDB.execSQL("INSERT INTO "
+//    				+ TableName
+//    				+ " (Field1, Field2)"
+//    				+ " VALUES ('Saranga', 22);");
+//    		
+//    		/* Insert data to a Table*/
+//    		myDB.execSQL("INSERT INTO "
+//    				+ TableName
+//    				+ " (Field1, Field2)"
+//    				+ " VALUES ('Tushar', 24);");
+//
+//    		/*retrieve data from database */
+//    		Cursor c = myDB.rawQuery("SELECT * FROM " + TableName , null);
+//
+//    		int Column1 = c.getColumnIndex("Field1");
+//    		int Column2 = c.getColumnIndex("Field2");
+//
+//    		// Check if our result was valid.
+//    		c.moveToFirst();
+//    		if (c != null) {
+//    			// Loop through all Results
+//    			do {
+//    				String Name = c.getString(Column1);
+//    				int Age = c.getInt(Column2);
+//    				Data =Data +Name+"/"+Age+"\n";
+//    			}while(c.moveToNext());
+//    		}
+//    		Log.w("rakesh", Data);
+//    		TextView tv = new TextView(this);
+//    		tv.setText(Data);
+//    		setContentView(tv);
+    		
+    	}
+    	catch(Exception e) {
+    		Log.e("Error", "Error", e);
+    	} finally {
+    		if (myDB != null)
+    			return myDB;
+    	}
+		return myDB;
+    }
+
     /**
      * The {@link ViewPager} that will host the section contents.
      */
