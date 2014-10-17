@@ -46,13 +46,13 @@ public class MainActivity extends Activity {
 
     public void getCallLogs(View view){
     	Context context = getApplicationContext();
-    	//Log.w("rakesh", getCallDetails(context));
+    	Log.w("rakesh", getCallDetails(context));
     	
     	//addCallToDB("123456", "2014-10-15 12:00:00", 2000);
-    	//getCallDetails(context);
-    	//printCallFromDB();
-    	
-    	printTopCallers();
+    	getCallDetails(context);
+    	printCallFromDB();
+    	//getDatabase();
+    	//printTopCallers();
     	
     }
     
@@ -102,7 +102,7 @@ public class MainActivity extends Activity {
             switch (dircode) {
             case CallLog.Calls.OUTGOING_TYPE:
                 dir = "OUTGOING";
-                addCallToDB(phNumber, dateFormat.format(callDayTime), 10);
+                addCallToDB(phNumber, dateFormat.format(callDayTime), Integer.parseInt(callDuration));
                 break;
             case CallLog.Calls.INCOMING_TYPE:
                 dir = "INCOMING";
